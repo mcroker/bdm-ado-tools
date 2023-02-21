@@ -1,0 +1,5 @@
+// Exclude for security reasons
+src/settings.ts
+
+node_modules
+dist
