@@ -3,7 +3,7 @@ import { IWorkItemTrackingApi } from "azure-devops-node-api/WorkItemTrackingApi"
 import { adoGetIdsFromWiql, getWitClient, getWorkItems } from "./adoWit"
 import { getProject } from "./common";
 
-const MCROKER_ID = '';
+const MCROKER_ID = '0fc1d223-916f-6668-89f8-3524c088d38b';
 (async () => {
 
     const ids = await adoGetIdsFromWiql(`
