@@ -1,15 +1,23 @@
 import { WebApi } from 'azure-devops-node-api';
 import { IWorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi';
 import { WorkItemErrorPolicy, WorkItemExpand } from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces';
-import { getProject, getWebApi } from './common';
+import * as adoApi from 'azure-devops-node-api';
+import * as lim from "azure-devops-node-api/interfaces/LocationsInterfaces";
 
+export async function getTags(): Promise<any> {
+    const projectId = getProject();
+    const witApi: IWorkItemTrackingApi = await getWitClient();
+
+    const result = await witApi.getTags(projectId);
+    return result.map(e => e.name);
+}
 
 export async function adoGetIdsFromWiql(query: string): Promise<number[]> {
     const projectId = getProject();
     const witApi: IWorkItemTrackingApi = await getWitClient();
     // run wiql query
     const result = await witApi.queryByWiql({ query }, { projectId });
-    return (result.workItems || []).map(e => e.id).filter(e => e !== undefined) as number[];
+    return (result?.workItems || []).map(e => e.id).filter(e => e !== undefined) as number[];
 }
 
 /**
@@ -73,7 +81,7 @@ export async function getWitClient(): Promise<IWorkItemTrackingApi> {
  * @param chunkSize The maximum number of elements in each chunk
  * @returns         A chunked array, of arrays T[] => T[][]
  */
-export function chunkArray<T>(a: T[], chunkSize: number): T[][] {
+function chunkArray<T>(a: T[], chunkSize: number): T[][] {
     // Map this into an array of number
     const batchedWorkItems: T[][] = [];
     for (let i = 0; i < a.length; i += chunkSize) {
@@ -81,4 +89,40 @@ export function chunkArray<T>(a: T[], chunkSize: number): T[][] {
         batchedWorkItems.push(chunk);
     }
     return batchedWorkItems;
+}
+
+export function getProject(): string {
+    return getEnv("API_PROJECT");
+}
+
+function getEnv(name: string): string {
+    let val = process.env[name];
+    if (!val) {
+        console.error(`${name} env var not set`);
+        process.exit(1);
+    }
+    return val;
+}
+
+async function getWebApi(serverUrl?: string): Promise<adoApi.WebApi> {
+    serverUrl = serverUrl || getEnv("API_URL");
+    return await getApi(serverUrl);
+}
+
+async function getApi(serverUrl: string): Promise<adoApi.WebApi> {
+    return new Promise<adoApi.WebApi>(async (resolve, reject) => {
+        try {
+            let token = getEnv("API_TOKEN");
+            let authHandler = adoApi.getPersonalAccessTokenHandler(token);
+            let option = undefined;
+
+            let vsts: adoApi.WebApi = new adoApi.WebApi(serverUrl, authHandler, option);
+            let connData: lim.ConnectionData = await vsts.connect();
+            // console.log(`Hello ${connData.authenticatedUser?.providerDisplayName}`);
+            resolve(vsts);
+        }
+        catch (err) {
+            reject(err);
+        }
+    });
 }
