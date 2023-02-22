@@ -1,13 +1,12 @@
 {{ name }},
 
-You have a number of RADD items within ADO that need your attention.
-Please review the following items and update them as appropriate.
+You have a number of RADD items within ADO that need your attention.  Please review the following items and update them as appropriate.
 
-{%- if wiIdsRequiringUpdate|length %}
+{% if wiIdsRequiringUpdate|length %}
 Not having been updated within the last 7 days
 {{ wiIdsRequiringUpdate | join }}
 {% endif %}
-{%- if wiIdsWithoutOpenActions|length %}
+{% if wiIdsWithoutOpenActions|length %}
 Open Risks and Issues without any open Actions
 {{ wiIdsWithoutOpenActions | join }}
 {% endif %}
