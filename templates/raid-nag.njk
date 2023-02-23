@@ -1,14 +1,18 @@
 {{ name }},
 
-You have a number of RADD items within ADO that need your attention.  Please review the following items and update them as appropriate.
+You have a number of RAID items within ADO that need your attention, please review the following items and update them as appropriate.
 
-{% if wiIdsRequiringUpdate|length %}
+{% if wiIdsRAIDRequiringUpdate|length %}
 Not having been updated within the last 7 days
-{{ wiIdsRequiringUpdate | join }}
+{{ wiIdsRAIDRequiringUpdate|join }}
 {% endif %}
-{% if wiIdsWithoutOpenActions|length %}
+{% if wiIdsRAIDWithoutOpenActions|length %}
 Open Risks and Issues without any open Actions
-{{ wiIdsWithoutOpenActions | join }}
+{{ wiIdsRAIDWithoutOpenActions|join }}
+{% endif %}
+{% if wiIdsNotUnderRelease|length %}
+Open Risks and Issues not under a valid Release IterationPath 
+{{ wiIdsNotUnderRelease|join }}
 {% endif %}
 Thanks,
 BDM PMO Team

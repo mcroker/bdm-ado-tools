@@ -12,7 +12,6 @@ export interface AssigneeWorkItems {
 
 export type AssigneeDataFn<T extends AssigneeWorkItems = AssigneeWorkItems> = (assignee: AssigneeWorkItems) => T;
 
-
 export async function groupAndSendToAssignees(workItemIds: any, template: string, fn: AssigneeDataFn | undefined, cc: string[] = [], okIds?: string[]): Promise<void> {
     groupWorkItemsByAssignee(await getWorkItems(workItemIds)).forEach(async assignee => {
         if (fn !== undefined) {
@@ -28,6 +27,8 @@ export async function groupAndSendToAssignees(workItemIds: any, template: string
                     assignee,
                     cc
                 );
+            } else {
+                console.log('Skipping email', assignee);
             }
         } else {
             console.log('Skipping email', assignee);
