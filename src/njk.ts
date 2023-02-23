@@ -12,7 +12,6 @@ export async function njk(template: string, context: object = {}): Promise<strin
         nunjucks.configure({
             autoescape: false
         });
-        console.log(__dirname);
         const env = new nunjucks.Environment(
             new nunjucks.FileSystemLoader(__dirname + '/../templates'), { autoescape: false }
         );

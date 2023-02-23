@@ -33,7 +33,7 @@ async function sendRAIDEmails(cc: string[] = [], onlySendTo?: string[]) {
     }, options);
 
     // Send an email to each assignee, using the specified template
-    await groupAndSendToAssignees('raid-nag.njk', data, cc, onlySendTo);
+    await groupAndSendToAssignees('emailUserNotification.njk', data, cc, onlySendTo);
 }
 
 /**
