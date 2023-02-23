@@ -1,6 +1,6 @@
     SELECT [System.Id]
     FROM workitems
     WHERE [System.WorkItemType] IN ('Project Risk', 'Project Issue', 'Project Decision')
-    AND [System.ChangedDate] < @Today - 7
+    AND [System.ChangedDate] < @Today - {{ daysSinceUpdated }}
     AND [System.State] = '11-Open' 
     ORDER BY [System.AssignedTo]

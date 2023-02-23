@@ -3,6 +3,10 @@ import { adoGetIdsFromWiql } from "./adoWit";
 import { njk } from "./njk";
 import { QueryList, QueryResults } from "./types";
 
+const options = {
+    daysSinceUpdated: 7
+};
+
 /**
  * Main function
  */
@@ -26,7 +30,7 @@ async function sendRAIDEmails(cc: string[] = [], onlySendTo?: string[]) {
         wiqlWithoutUpdate: 'wiqlWithoutUpdate.njk',
         wiqlWithoutOpenActions: 'wiqlWithoutOpenActions.njk',
         wiqlNotUnderRelease: 'wiqlNotUnderRelease.njk'
-    });
+    }, options);
 
     // Send an email to each assignee, using the specified template
     await groupAndSendToAssignees('raid-nag.njk', data, cc, onlySendTo);
