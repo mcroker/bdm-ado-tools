@@ -35,15 +35,16 @@ async function sendRAIDEmails(cc: string[] = [], onlySendTo?: string[]) {
 /**
  * Execute a series of WIQL queries (in parallel) and return the results as an object
  * 
- * @param   queries 
+ * @param   queries  Object of njk template filesname, keyed by query name
+ * @param   context  Context object to pass to njk rendering
  * @returns query results object, keyed by query name
  */
-async function executeWiqlQueries(queries: QueryList): Promise<QueryResults> {
+async function executeWiqlQueries(queries: QueryList, context: { [key: string]: any } = {}): Promise<QueryResults> {
     const data: { [key: string]: number[] } = {};
     await Promise.all(
         Object.entries(queries)
             .map(async ([key, wiqlTemplate]) => {
-                data[key] = await adoGetIdsFromWiql(await njk(wiqlTemplate));
+                data[key] = await adoGetIdsFromWiql(await njk(wiqlTemplate, context));
             })
     );
     return data;
