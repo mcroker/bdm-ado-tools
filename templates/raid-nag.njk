@@ -1,16 +1,16 @@
 {{ name }},
 
-You have a number of RAID items within ADO that need your attention, please review the following items and update them as appropriate.
+You have ADO workitems that require your attention, please review and update as appropriate.
 
-{% if wiIdsRAIDRequiringUpdate|length %}
+{%- if wiIdsRAIDRequiringUpdate|length %}
 Not having been updated within the last 7 days
 {{ wiIdsRAIDRequiringUpdate|join }}
-{% endif %}
-{% if wiIdsRAIDWithoutOpenActions|length %}
+{% endif -%}
+{%- if wiIdsRAIDWithoutOpenActions|length %}
 Open Risks and Issues without any open Actions
 {{ wiIdsRAIDWithoutOpenActions|join }}
-{% endif %}
-{% if wiIdsNotUnderRelease|length %}
+{% endif -%}
+{%- if wiIdsNotUnderRelease|length %}
 Open Risks and Issues not under a valid Release IterationPath 
 {{ wiIdsNotUnderRelease|join }}
 {% endif %}

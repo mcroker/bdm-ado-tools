@@ -1,44 +1,50 @@
-import { AssigneeDataFn, AssigneeWorkItems, groupAndSendToAssignees } from "./adoEmail";
+import { groupAndSendToAssignees } from "./adoEmail";
 import { adoGetIdsFromWiql } from "./adoWit";
 import { njk } from "./njk";
+import { QueryList, QueryResults } from "./types";
 
-export interface EmailData extends AssigneeWorkItems {
-    wiIdsRequiringUpdate: number[];
-    wiIdsWithoutOpenActions: number[];
-    wiIdsNotUnderRelease: number[];
-}
-
+/**
+ * Main function
+ */
 (async () => {
-    // const x = await getTags();
-    // console.log(JSON.stringify(x));
-    await sendRAIDEmails();
+    const MCROKER_ID = '0fc1d223-916f-6668-89f8-3524c088d38b';
+    // const VALERIE_ID = '9a89de09-8984-62a7-a1e8-d071dadf4c77';
+    await sendRAIDEmails([MCROKER_ID], [MCROKER_ID]);
 })();
 
-export const MCROKER_ID = '0fc1d223-916f-6668-89f8-3524c088d38b';
-export const VALERIE_ID = '9a89de09-8984-62a7-a1e8-d071dadf4c77';
+/**
+ * Query ADO WIQL API and send emails to assignees
+ * 
+ * @param cc         Array of tfIds to CC  
+ * @param onlySendTo Filer to apply to assignees prior to sending emails, 
+ *                   if provided other emails are skipped
+ */
+async function sendRAIDEmails(cc: string[] = [], onlySendTo?: string[]) {
+    // Execute all queries and return a data object of the results using the same keys as the queries
+    // Queries are defined in the templates folder. Each query returns a lsit of IDs
+    const data = await executeWiqlQueries({
+        wiqlWithoutUpdate: 'wiqlWithoutUpdate.njk',
+        wiqlWithoutOpenActions: 'wiqlWithoutOpenActions.njk',
+        wiqlNotUnderRelease: 'wiqlNotUnderRelease.njk'
+    });
 
-async function sendRAIDEmails() {
-
-    const wiIdsRequiringUpdate = await adoGetIdsFromWiql(await njk('wiqlWithoutUpdate.njk'));
-    const wiIdsWithoutOpenActions = await adoGetIdsFromWiql(await njk('wiqlWithoutOpenActions.njk'));
-    const wiIdsNotUnderRelease = await adoGetIdsFromWiql(await njk('wiqlNotUnderRelease.njk'));
-
-    const fn: AssigneeDataFn<EmailData> = (assignee: AssigneeWorkItems) => {
-        return {
-            ...assignee,
-            wiIdsRequiringUpdate: wiIdsRequiringUpdate.filter(id => assignee.workItemIds.includes(id)),
-            wiIdsWithoutOpenActions: wiIdsWithoutOpenActions.filter(id => assignee.workItemIds.includes(id)),
-            wiIdsNotUnderRelease: wiIdsNotUnderRelease.filter(id => assignee.workItemIds.includes(id))
-        }
-    }
-
-    const ids = [...wiIdsRequiringUpdate, ...wiIdsWithoutOpenActions, ...wiIdsNotUnderRelease];
-
-    await groupAndSendToAssignees(ids.sort(sortAsc), 'raid-nag.njk', fn, [MCROKER_ID], [MCROKER_ID]);
-
+    // Send an email to each assignee, using the specified template
+    await groupAndSendToAssignees('raid-nag.njk', data, cc, onlySendTo);
 }
 
-function sortAsc(a: number, b: number) {
-    return a - b;
+/**
+ * Execute a series of WIQL queries (in parallel) and return the results as an object
+ * 
+ * @param   queries 
+ * @returns query results object, keyed by query name
+ */
+async function executeWiqlQueries(queries: QueryList): Promise<QueryResults> {
+    const data: { [key: string]: number[] } = {};
+    await Promise.all(
+        Object.entries(queries)
+            .map(async ([key, wiqlTemplate]) => {
+                data[key] = await adoGetIdsFromWiql(await njk(wiqlTemplate));
+            })
+    );
+    return data;
 }
-

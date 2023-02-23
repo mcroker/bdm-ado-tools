@@ -1,5 +1,12 @@
 import * as nunjucks from 'nunjucks';
 
+/**
+ * Use a njk template to render a string
+ * 
+ * @param template Template file to use, relative to the templates directory
+ * @param context  Context data for the njk template generation
+ * @returns        Rendered string
+ */
 export async function njk(template: string, context: object = {}): Promise<string> {
     return new Promise<string>(async (resolve, reject) => {
         nunjucks.configure({
@@ -10,14 +17,7 @@ export async function njk(template: string, context: object = {}): Promise<strin
             new nunjucks.FileSystemLoader(__dirname + '/../templates'), { autoescape: false }
         );
 
-        env.addFilter('yesno', function (b: boolean) {
-            if (b) {
-                return 'Yes'
-            } else {
-                return 'No'
-            }
-        });
-
+        // Joins a string array with a comma and space
         env.addFilter('join', function (b: (string | number)[]) {
             return (b || []).map(i => `${i}`).join(', ');
         });
