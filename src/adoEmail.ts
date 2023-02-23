@@ -1,7 +1,7 @@
 import { IWorkItemTrackingApi } from 'azure-devops-node-api/WorkItemTrackingApi';
-import * as nunjucks from 'nunjucks';
 import { getProject, getWitClient, getWorkItems } from './adoWit';
 import { SendMailBody } from 'azure-devops-node-api/interfaces/WorkItemTrackingInterfaces';
+import { njk } from './njk';
 
 export interface AssigneeWorkItems {
     name: string,
@@ -87,36 +87,3 @@ export function groupWorkItemsByAssignee(workItems: any): AssigneeWorkItems[] {
         }))
 }
 
-export async function njk(template: string, context: object = {}): Promise<string> {
-    return new Promise<string>(async (resolve, reject) => {
-        nunjucks.configure({
-            autoescape: false
-        });
-        console.log(__dirname);
-        const env = new nunjucks.Environment(
-            new nunjucks.FileSystemLoader(__dirname + '/../templates'), { autoescape: false }
-        );
-
-        env.addFilter('yesno', function (b: boolean) {
-            if (b) {
-                return 'Yes'
-            } else {
-                return 'No'
-            }
-        });
-
-        env.addFilter('join', function (b: (string | number)[]) {
-            return (b || []).map(i => `${i}`).join(', ');
-        });
-
-        env.render(template, context,
-            (err: Error | null, res: string | null) => {
-                if (err || res === null) {
-                    reject(err);
-                } else {
-                    resolve(res);
-                }
-            }
-        );
-    });
-}

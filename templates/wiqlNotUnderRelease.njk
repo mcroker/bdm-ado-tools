@@ -1,0 +1,7 @@
+ SELECT [System.Id]
+ FROM workitems
+ WHERE [System.WorkItemType] IN ('Project Risk', 'Project Issue', 'Project Decision', 'Bug')
+ AND [System.IterationPath] NOT UNDER 'BDC\\OAS\\R1'
+ AND [System.IterationPath] NOT UNDER 'BDC\\OAS\\R2'
+ AND [System.State] = '11-Open' 
+ ORDER BY [System.AssignedTo]

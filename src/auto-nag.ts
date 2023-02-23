@@ -1,5 +1,6 @@
-import { getWiIdsNotUnderRelease, getWiIdsWithoutOpenActions, getWiIdsWithoutUpdate } from "./bdmQueries";
 import { AssigneeDataFn, AssigneeWorkItems, groupAndSendToAssignees } from "./adoEmail";
+import { adoGetIdsFromWiql } from "./adoWit";
+import { njk } from "./njk";
 
 export interface EmailData extends AssigneeWorkItems {
     wiIdsRequiringUpdate: number[];
@@ -18,9 +19,9 @@ export const VALERIE_ID = '9a89de09-8984-62a7-a1e8-d071dadf4c77';
 
 async function sendRAIDEmails() {
 
-    const wiIdsRequiringUpdate = await getWiIdsWithoutUpdate();
-    const wiIdsWithoutOpenActions = await getWiIdsWithoutOpenActions();
-    const wiIdsNotUnderRelease = await getWiIdsNotUnderRelease();
+    const wiIdsRequiringUpdate = await adoGetIdsFromWiql(await njk('wiqlWithoutUpdate.njk'));
+    const wiIdsWithoutOpenActions = await adoGetIdsFromWiql(await njk('wiqlWithoutOpenActions.njk'));
+    const wiIdsNotUnderRelease = await adoGetIdsFromWiql(await njk('wiqlNotUnderRelease.njk'));
 
     const fn: AssigneeDataFn<EmailData> = (assignee: AssigneeWorkItems) => {
         return {
@@ -33,7 +34,7 @@ async function sendRAIDEmails() {
 
     const ids = [...wiIdsRequiringUpdate, ...wiIdsWithoutOpenActions, ...wiIdsNotUnderRelease];
 
-    await groupAndSendToAssignees(ids.sort(sortAsc), 'raid-nag.njk', fn, [MCROKER_ID], [MCROKER_ID, VALERIE_ID]);
+    await groupAndSendToAssignees(ids.sort(sortAsc), 'raid-nag.njk', fn, [MCROKER_ID], [MCROKER_ID]);
 
 }
 
